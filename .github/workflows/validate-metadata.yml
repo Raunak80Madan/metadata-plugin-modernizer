@@ -4,7 +4,7 @@ on:
   pull_request:
     branches: [main]
     paths:
-        - '**/modernization-metadata/**'
+      - '**/modernization-metadata/**'
 
 permissions:
   pull-requests: write
@@ -16,7 +16,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Needed to access PR diff
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -28,11 +28,26 @@ jobs:
 
       - name: Validate metadata
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MY_PAT: ${{ secrets.PAT }}
         run: python scripts/validate_metadata.py
 
+      - name: Check if PR is from a bot fork
+        id: bot_check
+        run: |
+          echo "PR_AUTHOR=${{ github.actor }}" >> $GITHUB_ENV
+          if [[ "${{ github.actor }}" =~ bot$ || "${{ github.actor }}" =~ \[bot\]$ ]]; then
+            echo "IS_BOT=true" >> $GITHUB_ENV
+          else
+            echo "IS_BOT=false" >> $GITHUB_ENV
+          fi
+          if [[ "${{ github.event.pull_request.head.repo.full_name }}" != "${{ github.repository }}" ]]; then
+            echo "IS_FORK=true" >> $GITHUB_ENV
+          else
+            echo "IS_FORK=false" >> $GITHUB_ENV
+          fi
+
       - name: Auto-merge PR
-        if: success()
-        run: gh pr merge "${{ github.head_ref }}" --merge --auto --repo Raunak80Madan/metadata-plugin-modernizer
+        if: env.IS_BOT == 'true' && env.IS_FORK == 'true' && success()
+        run: gh pr merge "${{ github.event.pull_request.number }}" --merge --auto --repo ${{ github.repository }}
         env:
-            GH_TOKEN: ${{ secrets.PAT }}
+          GH_TOKEN: ${{ secrets.PAT }}
