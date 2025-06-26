@@ -4,11 +4,9 @@ on:
   push: 
     branches: 
       - automation/update-pr-status
-  pull_request:
+  pull_request_target: 
     branches: [main]
-    paths:
-        - '**/modernization-metadata/**'
-
+    
 permissions:
   pull-requests: write
 
