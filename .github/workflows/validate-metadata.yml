@@ -6,9 +6,7 @@ on:
       - automation/update-pr-status
   pull_request:
     branches: [main]
-    paths:
-        - '**/modernization-metadata/**'
-
+    
 permissions:
   pull-requests: write
 
