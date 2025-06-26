@@ -45,7 +45,7 @@ jobs:
           git commit -m "Update PR statuses and branch info in metadata files" || exit 0
 
           # Push to branch (force needed if branch already exists)
-          git push origin "$BRANCH_NAME" --force
+          git push origin "$BRANCH_NAME" 
 
           # Create or update PR
           gh pr create --title "chore: update PR statuses and branch info" \
